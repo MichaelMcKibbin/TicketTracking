@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.tickettracking.MainViewController">
+    <MenuBar>
+        <Menu text="File">
+            <MenuItem text="New Ticket" onAction="#createNewTicket"/>
+            <MenuItem text="Exit" onAction="#exitApplication"/>
+        </Menu>
+    </MenuBar>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Search tickets..."/>
+        <ComboBox fx:id="statusFilter" promptText="Status"/>
+        <ComboBox fx:id="priorityFilter" promptText="Priority"/>
+    </HBox>
+
+    <TableView fx:id="ticketTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID"/>
+            <TableColumn fx:id="titleColumn" text="Title"/>
+            <TableColumn fx:id="statusColumn" text="Status"/>
+            <TableColumn fx:id="priorityColumn" text="Priority"/>
+            <TableColumn fx:id="assignedToColumn" text="Assigned To"/>
+            <TableColumn fx:id="createdAtColumn" text="Created"/>
+        </columns>
+    </TableView>
+</VBox>
+
