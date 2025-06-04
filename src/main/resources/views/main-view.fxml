@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.tickettracking.MainViewController">
+
+<VBox xmlns:fx="http://javafx.com/fxml" stylesheets="@styles.css" fx:controller="com.tickettracking.MainViewController">
     <MenuBar>
         <Menu text="File">
             <MenuItem text="New Ticket" onAction="#createNewTicket"/>
+            <MenuItem text="Save" onAction="#save"/>
             <MenuItem text="Exit" onAction="#exitApplication"/>
+
         </Menu>
     </MenuBar>
 
@@ -14,6 +18,7 @@
         <TextField fx:id="searchField" promptText="Search tickets..."/>
         <ComboBox fx:id="statusFilter" promptText="Status"/>
         <ComboBox fx:id="priorityFilter" promptText="Priority"/>
+
     </HBox>
 
     <TableView fx:id="ticketTable" VBox.vgrow="ALWAYS">
@@ -26,5 +31,8 @@
             <TableColumn fx:id="createdAtColumn" text="Created"/>
         </columns>
     </TableView>
+    <HBox styleClass="status-bar" spacing="10" style="-fx-background-color: #f4f4f4; -fx-border-color: #ddd; -fx-border-width: 1 0 0 0;">
+        <Label fx:id="saveIndicatorLabel" text="All Changes Saved" />
+    </HBox>
 </VBox>
 
