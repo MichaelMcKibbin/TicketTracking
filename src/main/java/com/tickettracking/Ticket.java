@@ -13,7 +13,7 @@ public class Ticket {
     private String assignedTo;
 
     public enum Status {
-        NEW, IN_PROGRESS, ON_HOLD, RESOLVED, CLOSED
+        NEW, IN_PROGRESS, ON_HOLD, RESOLVED, OPEN, CLOSED
     }
 
     public enum Priority {
@@ -71,6 +71,7 @@ public class Ticket {
     }
 
     public Status getStatus() {
+
         return status;
     }
 

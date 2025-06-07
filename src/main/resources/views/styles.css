@@ -88,8 +88,8 @@ HBox {
     -fx-border-radius: 3;
     -fx-border-width: 2;
     -fx-border-color: -fx-secondary;
-    -fx-padding: 5;
-    -fx-spacing: 5;
+    -fx-padding: 2;
+    -fx-spacing: 2;
 }
 /* VBox styling */
 VBox {
@@ -97,8 +97,8 @@ VBox {
     -fx-border-radius: 3;
     -fx-border-width: 2;
     -fx-border-color: -fx-secondary;
-    -fx-padding: 10;
-    -fx-spacing: 10;
+    -fx-padding: 5;
+    -fx-spacing: 5;
 }
 .VBoxTight {
     -fx-background-color: derive(-fx-secondary, 90%);
@@ -128,7 +128,7 @@ VBox {
     -fx-text-fill: white;
     -fx-border-radius: 3;
     -fx-background-radius: 3;
-    -fx-padding: 8 15 8 15;
+    -fx-padding: 8 8 8 8;
 }
 
 .button:hover {
@@ -282,4 +282,3 @@ VBox {
 .progress-bar .track {
     -fx-background-color: derive(-fx-background, -5%);
 }
-

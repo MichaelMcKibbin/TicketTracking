@@ -10,10 +10,24 @@ import java.io.IOException;
 public class TicketApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+        // Create the TicketService
+        TicketService ticketService = new TicketService();
+
+        // Create the FXMLLoader
         FXMLLoader fxmlLoader = new FXMLLoader(TicketApplication.class.getResource("/views/main-view.fxml"));
 
-        Scene scene = new Scene(fxmlLoader.load(), 640, 480);
-        stage.setTitle("Tickets!");
+        // Set up the controller factory
+        fxmlLoader.setControllerFactory(param -> {
+            if (param == MainViewController.class) {
+                MainViewController controller = new MainViewController();
+                controller.setTicketService(ticketService);
+                return controller;
+            }
+            return null;
+        });
+
+        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
+        stage.setTitle("Ticket Tracking System");
         stage.setScene(scene);
         stage.show();
     }
@@ -22,3 +36,5 @@ public class TicketApplication extends Application {
         launch();
     }
 }
+
+

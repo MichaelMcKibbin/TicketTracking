@@ -5,83 +5,137 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 
 public class TicketService {
-    private static final String DATA_DIR = "data";
-    private static final String TICKET_FILE = "tickets.json";
-    private Path ticketFilePath;
-    private ObjectMapper objectMapper;
+    private static final String FILE_PATH = "tickets.json";
+    private final ObjectMapper objectMapper;
+    private List<Ticket> tickets; // Cache the tickets in memory
 
     public TicketService() {
-        // Initialize ObjectMapper
-        objectMapper = new ObjectMapper();
+        this.objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        this.tickets = loadTicketsFromFile();
+    }
 
-        // Setup data directory and file path
+    private List<Ticket> loadTicketsFromFile() {
+        File file = new File(FILE_PATH);
         try {
-            Files.createDirectories(Paths.get(DATA_DIR));
-            ticketFilePath = Paths.get(DATA_DIR, TICKET_FILE);
+            if (!file.exists()) {
+                file.createNewFile();
+                return new ArrayList<>();
+            }
+            String content = Files.readString(file.toPath());
+            if (content == null || content.trim().isEmpty()) {
+                return new ArrayList<>();
+            }
+            return objectMapper.readValue(file,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, Ticket.class));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to create data directory", e);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE,
+                    "Error reading tickets from file", e);
+            return new ArrayList<>();
         }
     }
 
-    // Method to save tickets using ObjectMapper
-    public void saveTickets(List<Ticket> tickets) {
+    public List<Ticket> getAllTickets() {
+        return new ArrayList<>(tickets);
+    }
+
+    public void saveTicket(Ticket ticket) {
         try {
-            objectMapper.writeValue(ticketFilePath.toFile(), tickets);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save tickets", e);
+            if (ticket == null) {
+                throw new IllegalArgumentException("Ticket cannot be null");
+            }
+
+            // Set creation time for new ticket
+            if (ticket.getCreatedAt() == null) {
+                ticket.setCreatedAt(LocalDateTime.now());
+            }
+
+            // Generate new ID for new ticket
+            if (ticket.getId() == null || ticket.getId().isEmpty()) {
+                // Find the maximum numeric ID
+                int maxId = tickets.stream()
+                    .map(Ticket::getId)
+                    .filter(id -> id != null && !id.isEmpty())
+                    .mapToInt(id -> {
+                        try {
+                            return Integer.parseInt(id);
+                        } catch (NumberFormatException e) {
+                            return 0;
+                        }
+                    })
+                    .max()
+                    .orElse(0);
+                ticket.setId(String.valueOf(maxId + 1));
+            }
+
+            tickets.add(ticket);
+            saveAllTickets(tickets);
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE,
+                    "Error saving ticket", e);
+            throw new RuntimeException("Failed to save ticket", e);
         }
     }
 
-    // Method to load tickets using ObjectMapper
-    public List<Ticket> loadTickets() {
-        if (!Files.exists(ticketFilePath)) {
-            return new ArrayList<>(); // Return empty list if file doesn't exist
-        }
+    public void updateTicket(Ticket editedTicket) {
         try {
-            return objectMapper.readValue(
-                    ticketFilePath.toFile(),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Ticket.class)
-            );
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load tickets", e);
+            if (editedTicket == null || editedTicket.getId() == null) {
+                throw new IllegalArgumentException("Ticket or ticket ID cannot be null");
+            }
+
+            for (int i = 0; i < tickets.size(); i++) {
+                if (tickets.get(i).getId().equals(editedTicket.getId())) {
+                    tickets.set(i, editedTicket);
+                    saveAllTickets(tickets);
+                    return;
+                }
+            }
+            throw new RuntimeException("Ticket not found with ID: " + editedTicket.getId());
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE,
+                    "Error updating ticket", e);
+            throw new RuntimeException("Failed to update ticket", e);
         }
     }
-//    public TicketService() {
-//        objectMapper = new ObjectMapper();
-//        objectMapper.registerModule(new JavaTimeModule());
-//    }
-//
-//    public List<com.tickettracking.Ticket> loadTickets() {
-//        try {
-//            File file = new File(TICKET_FILE);
-//            if (!file.exists()) {
-//                return new ArrayList<>();
-//            }
-//            return objectMapper.readValue(file,
-//                new TypeReference<List<com.tickettracking.Ticket>>() {});
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return new ArrayList<>();
-//        }
-//    }
-//
-//    public void saveTickets(List<com.tickettracking.Ticket> tickets) {
-//        try {
-//            objectMapper.writeValue(new File(TICKET_FILE), tickets);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+
+    public void deleteTicket(Ticket ticket) {
+        try {
+            if (ticket == null || ticket.getId() == null) {
+                throw new IllegalArgumentException("Ticket or ticket ID cannot be null");
+            }
+
+            boolean removed = tickets.removeIf(t ->
+                t.getId() != null && t.getId().equals(ticket.getId()));
+
+            if (removed) {
+                saveAllTickets(tickets);
+            } else {
+                throw new RuntimeException("Ticket not found with ID: " + ticket.getId());
+            }
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE,
+                    "Error deleting ticket", e);
+            throw new RuntimeException("Failed to delete ticket", e);
+        }
+    }
+
+    private void saveAllTickets(List<Ticket> tickets) throws IOException {
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        objectMapper.writeValue(new File(FILE_PATH), tickets);
+    }
 }
-
