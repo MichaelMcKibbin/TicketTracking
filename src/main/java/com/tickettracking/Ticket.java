@@ -1,7 +1,14 @@
 package com.tickettracking;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Represents a ticket in a ticket tracking system.
+ * A ticket contains details such as its title, description, status, priority,
+ * creation and update timestamps, assigned user, and associated comments.
+ */
 public class Ticket {
     private String id;
     private String title;
@@ -11,6 +18,7 @@ public class Ticket {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String assignedTo;
+    private List<Comment> comments;
 
     public enum Status {
         NEW, IN_PROGRESS, ON_HOLD, RESOLVED, OPEN, CLOSED
@@ -25,12 +33,12 @@ public class Ticket {
         this.title = "";
         this.description = "";
         this.priority = Priority.LOW;
+        this.comments = new ArrayList<>();
     }
 
 
     // Constructor for new tickets
     public Ticket(String title, String description, Priority priority, LocalDateTime createdAt) {
-        this.id = generateId(); // You'll need to implement this method
         this.title = title;
         this.description = description;
         this.priority = priority;
@@ -38,11 +46,6 @@ public class Ticket {
         this.createdAt = createdAt;
         this.updatedAt = createdAt; // Initially same as created
         this.assignedTo = null; // Initially unassigned
-    }
-
-    private String generateId() {
-        // Simple implementation - you might want to make this more sophisticated
-        return "TKT-" + System.currentTimeMillis();
     }
 
     // Getters and Setters
@@ -109,6 +112,22 @@ public class Ticket {
 
     public void setAssignedTo(String assignedTo) {
         this.assignedTo = assignedTo;
+    }
+
+    public List<Comment> getComments() {
+        return comments != null ? comments : new ArrayList<>();
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public void addComment(Comment comment) {
+        if (this.comments == null) {
+            this.comments = new ArrayList<>();
+        }
+        comment.setTicketId(this.id);
+        this.comments.add(comment);
     }
 }
 

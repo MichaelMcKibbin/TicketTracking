@@ -17,7 +17,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-
+/**
+ * The TicketService class provides functionalities to manage Ticket objects.
+ * It handles CRUD (Create, Read, Update, Delete) operations and persists tickets
+ * in a JSON file for storage.
+ */
 public class TicketService {
     private static final String FILE_PATH = "tickets.json";
     private final ObjectMapper objectMapper;
@@ -56,9 +60,7 @@ public class TicketService {
 
     public void saveTicket(Ticket ticket) {
         try {
-            if (ticket == null) {
-                throw new IllegalArgumentException("Ticket cannot be null");
-            }
+            validateTicket(ticket);
 
             // Set creation time for new ticket
             if (ticket.getCreatedAt() == null) {
@@ -94,12 +96,14 @@ public class TicketService {
 
     public void updateTicket(Ticket editedTicket) {
         try {
-            if (editedTicket == null || editedTicket.getId() == null) {
-                throw new IllegalArgumentException("Ticket or ticket ID cannot be null");
+            validateTicket(editedTicket);
+            if (editedTicket.getId() == null) {
+                throw new IllegalArgumentException("Ticket ID cannot be null for update");
             }
 
             for (int i = 0; i < tickets.size(); i++) {
                 if (tickets.get(i).getId().equals(editedTicket.getId())) {
+                    editedTicket.setUpdatedAt(LocalDateTime.now());
                     tickets.set(i, editedTicket);
                     saveAllTickets(tickets);
                     return;
@@ -134,6 +138,21 @@ public class TicketService {
         }
     }
 
+    private void validateTicket(Ticket ticket) {
+        if (ticket == null) {
+            throw new IllegalArgumentException("Ticket cannot be null");
+        }
+        if (ticket.getTitle() == null || ticket.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("Ticket title is required");
+        }
+        if (ticket.getStatus() == null) {
+            throw new IllegalArgumentException("Ticket status is required");
+        }
+        if (ticket.getPriority() == null) {
+            throw new IllegalArgumentException("Ticket priority is required");
+        }
+    }
+    
     private void saveAllTickets(List<Ticket> tickets) throws IOException {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         objectMapper.writeValue(new File(FILE_PATH), tickets);

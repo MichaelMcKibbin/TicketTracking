@@ -83,8 +83,8 @@
 
 
 /* HBox styling */
-HBox {
-    -fx-background-color: derive(-fx-secondary, 90%);
+.hbox {
+    -fx-background-color: #e8f4fd;
     -fx-border-radius: 3;
     -fx-border-width: 2;
     -fx-border-color: -fx-secondary;
@@ -92,16 +92,16 @@ HBox {
     -fx-spacing: 2;
 }
 /* VBox styling */
-VBox {
-    -fx-background-color: derive(-fx-secondary, 90%);
+.vbox {
+    -fx-background-color: #e8f4fd;
     -fx-border-radius: 3;
     -fx-border-width: 2;
     -fx-border-color: -fx-secondary;
     -fx-padding: 5;
     -fx-spacing: 5;
 }
-.VBoxTight {
-    -fx-background-color: derive(-fx-secondary, 90%);
+.vbox-tight {
+    -fx-background-color: #e8f4fd;
     -fx-border-radius: 3;
     -fx-border-width: 2;
     -fx-border-color: -fx-secondary;
@@ -132,11 +132,11 @@ VBox {
 }
 
 .button:hover {
-    -fx-background-color: derive(-fx-secondary, -20%);
+    -fx-background-color: #2980b9;
 }
 
 .button:pressed {
-    -fx-background-color: derive(-fx-secondary, -30%);
+    -fx-background-color: #1f6391;
 }
 
 /* Slider styling */
@@ -145,7 +145,7 @@ VBox {
 }
 
 .slider .track {
-    -fx-background-color: derive(-fx-primary, 70%);
+    -fx-background-color: #a8b5c6;
 }
 
 .slider .thumb {
@@ -164,7 +164,7 @@ VBox {
 
 .radio-button .radio {
     -fx-background-color: white;
-    -fx-border-color: derive(-fx-primary, 70%);
+    -fx-border-color: #a8b5c6;
     -fx-border-radius: 100;
 }
 
@@ -178,13 +178,13 @@ VBox {
 }
 
 .table-view .column-header {
-    -fx-background-color: derive(-fx-primary,80%);
+    -fx-background-color: #7a94b0;
     -fx-text-fill: white;
     -fx-padding: 8;
 }
 
 .table-row-cell:odd {
-    -fx-background-color: derive(-fx-secondary, 90%);
+    -fx-background-color: #e8f4fd;
 }
 
 .table-row-cell:even {
@@ -192,16 +192,15 @@ VBox {
 }
 
 .table-row-cell:selected {
-    -fx-background-color: derive(-fx-secondary, 70%);
+    -fx-background-color: #5ca4e4;
 }
 
 /* Menu styling */
 .menu-bar {
-    -fx-background-color: derive(-fx-secondary, 70%);
+    -fx-background-color: #5ca4e4;
     -fx-border-radius: 3;
     -fx-border-width: 1;
     -fx-border-color: grey;
-
 }
 
 .menu {
@@ -270,7 +269,7 @@ VBox {
 
 /* Status bar styling */
 .status-bar {
-    -fx-background-color: derive(-fx-primary, 90%);
+    -fx-background-color: #f0f4f6;
     -fx-padding: 5;
 }
 
@@ -280,5 +279,5 @@ VBox {
 }
 
 .progress-bar .track {
-    -fx-background-color: derive(-fx-background, -5%);
+    -fx-background-color: #d1dde0;
 }

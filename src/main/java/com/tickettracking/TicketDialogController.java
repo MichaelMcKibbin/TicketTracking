@@ -13,7 +13,10 @@ import javafx.stage.WindowEvent;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-
+/**
+ * Controller class for managing the ticket dialog UI interaction.
+ * This class handles displaying, updating, and saving ticket details through a dialog interface.
+ */
 public class TicketDialogController {
     @FXML
     private TextField titleField;

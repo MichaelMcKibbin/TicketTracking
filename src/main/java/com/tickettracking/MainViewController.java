@@ -26,7 +26,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.tickettracking.EditTicketDialogController;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.util.Duration;
 
+/**
+ * MainViewController acts as the controller for the main application view, managing the
+ * display and interaction with a list of tickets, along with filtering and editing capabilities.
+ *
+ * This class is integrated with JavaFX components to handle user interactions, such as searching,
+ * filtering, and editing tickets in a TableView. It communicates with the TicketService and
+ * UserService to fetch and update ticket data, and leverages FXML-defined UI components.
+ */
 
 public class MainViewController {
 
@@ -44,6 +55,7 @@ public class MainViewController {
     @FXML public TableColumn<Ticket, String> descriptionColumn;
 
     private TicketService ticketService;
+    private UserService userService;
     private final ObservableList<Ticket> tickets = FXCollections.observableArrayList();
 
     // no-args constructor
@@ -52,6 +64,10 @@ public class MainViewController {
 
     public void setTicketService(TicketService ticketService) {
         this.ticketService = ticketService;
+    }
+    
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
 
@@ -65,6 +81,12 @@ public class MainViewController {
             System.err.println("Warning: TicketService not initialized during initialization");
             return;
         }
+        
+        // Initialize UserService if not set
+        if (userService == null) {
+            userService = new UserService();
+        }
+        
         // Initialize table columns
         setupTableColumns();
 
@@ -102,15 +124,32 @@ public class MainViewController {
 
         // Format the priority column with colors
         priorityColumn.setCellFactory(column -> new TableCell<Ticket, Ticket.Priority>() {
+            private Timeline flashTimeline;
+            
             @Override
             protected void updateItem(Ticket.Priority item, boolean empty) {
                 super.updateItem(item, empty);
+                
+                // Stop any existing animation
+                if (flashTimeline != null) {
+                    flashTimeline.stop();
+                }
+                
                 if (empty || item == null) {
                     setText(null);
                     setStyle("");
                 } else {
                     setText(item.toString());
                     switch (item) {
+                        case CRITICAL:
+                            // Create flashing animation for CRITICAL
+                            flashTimeline = new Timeline(
+                                new KeyFrame(Duration.seconds(0.5), e -> setStyle("-fx-text-fill: purple; -fx-font-weight: bold;")),
+                                new KeyFrame(Duration.seconds(1.0), e -> setStyle("-fx-text-fill: transparent;"))
+                            );
+                            flashTimeline.setCycleCount(Timeline.INDEFINITE);
+                            flashTimeline.play();
+                            break;
                         case HIGH:
                             setStyle("-fx-text-fill: red;");
                             break;
@@ -143,18 +182,28 @@ public class MainViewController {
     }
 
     private void setupFilters() {
+        // Initialize filter ComboBoxes
+        statusFilter.getItems().add(null); // "All" option
+        statusFilter.getItems().addAll(Ticket.Status.values());
+        
+        priorityFilter.getItems().add(null); // "All" option
+        priorityFilter.getItems().addAll(Ticket.Priority.values());
+        
         // Add listeners to search field and combo boxes
         searchField.textProperty().addListener((observable, oldValue, newValue) -> filterTickets());
+        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> filterTickets());
+        priorityFilter.valueProperty().addListener((observable, oldValue, newValue) -> filterTickets());
     }
 
 private void editTicket(Ticket ticket) {
     try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/EditTicketDialog.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/edit-ticket-dialog.fxml"));
         Parent root = loader.load();
 
         EditTicketDialogController controller = (EditTicketDialogController) loader.getController();
         if (controller != null) {
             controller.setTicket(ticket);
+            controller.setUserService(userService);
 
             Stage stage = new Stage();
             stage.setTitle("Edit Ticket");
@@ -163,6 +212,11 @@ private void editTicket(Ticket ticket) {
 
             stage.showAndWait();
 
+            // Save the edited ticket if it has a title
+            if (ticket.getTitle() != null && !ticket.getTitle().isEmpty()) {
+                ticketService.updateTicket(ticket);
+            }
+            
             // Refresh tickets after editing
             loadTickets();
         } else {
@@ -204,18 +258,28 @@ public void loadTickets() {
 
 
 private void filterTickets() {
-    if (searchField.getText().trim().isEmpty()) {
-        ticketTable.setItems(tickets);  // Note: using tickets, not ticketList
-    } else {
-        String searchText = searchField.getText().toLowerCase();
-        ObservableList<Ticket> filteredList = tickets.filtered(ticket ->
+    String searchText = searchField.getText().toLowerCase().trim();
+    Ticket.Status selectedStatus = statusFilter.getValue();
+    Ticket.Priority selectedPriority = priorityFilter.getValue();
+    
+    ObservableList<Ticket> filteredList = tickets.filtered(ticket -> {
+        // Text search filter
+        boolean matchesText = searchText.isEmpty() ||
                 (ticket.getTitle() != null && ticket.getTitle().toLowerCase().contains(searchText)) ||
                 (ticket.getId() != null && ticket.getId().toLowerCase().contains(searchText)) ||
                 (ticket.getStatus() != null && ticket.getStatus().toString().toLowerCase().contains(searchText)) ||
-                (ticket.getAssignedTo() != null && ticket.getAssignedTo().toLowerCase().contains(searchText))
-        );
-        ticketTable.setItems(filteredList);
-    }
+                (ticket.getAssignedTo() != null && ticket.getAssignedTo().toLowerCase().contains(searchText));
+        
+        // Status filter
+        boolean matchesStatus = selectedStatus == null || ticket.getStatus() == selectedStatus;
+        
+        // Priority filter
+        boolean matchesPriority = selectedPriority == null || ticket.getPriority() == selectedPriority;
+        
+        return matchesText && matchesStatus && matchesPriority;
+    });
+    
+    ticketTable.setItems(filteredList);
 }
     // Method that supports different alert types
     private void showAlert(String title, String header, String content, Alert.AlertType alertType) {
@@ -236,7 +300,7 @@ private void filterTickets() {
     @FXML
     public void createNewTicket(ActionEvent actionEvent) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/EditTicketDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/edit-ticket-dialog.fxml"));
             Parent root = loader.load();
 
             EditTicketDialogController controller = (EditTicketDialogController) loader.getController();
@@ -247,6 +311,7 @@ private void filterTickets() {
             newTicket.setPriority(Ticket.Priority.MEDIUM);  // Set default priority
 
             controller.setTicket(newTicket);
+            controller.setUserService(userService);
 
             Stage stage = new Stage();
             stage.setTitle("Create New Ticket");
@@ -270,10 +335,8 @@ private void filterTickets() {
     @FXML
     public void save(ActionEvent actionEvent) {
         try {
-            // Save all tickets
-            for (Ticket ticket : tickets) {
-                ticketService.updateTicket(ticket);
-            }
+            // The tickets are already saved automatically by TicketService
+            // This method can be used for manual save confirmation
             showAlert("Success", "Save Successful", "All tickets have been saved successfully.", Alert.AlertType.INFORMATION);
         } catch (Exception e) {
             e.printStackTrace();
