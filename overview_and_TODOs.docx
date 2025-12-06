@@ -1,0 +1,94 @@
+# What’s working well
+
+- Clear layering / responsibilities
+- Ticket, User, Comment as proper domain models with enums for Status, Priority, Role.
+- TicketService handling all JSON persistence with Jackson (tickets.json in the working directory).
+- UserService with a simple in-memory user list + “current user” concept (ready for a login screen later).
+- Controllers:
+- TicketApplication = entry point, loads main-view.fxml.
+- MainViewController = main screen, table, filters, menu actions.
+- TicketDialogController = create dialog.
+- EditTicketDialogController = edit dialog + comments UI.
+- Nice JavaFX touches
+- TableView<Ticket> with:
+- Custom date formatting for createdAt using DateTimeFormatter("yyyy-MM-dd HH:mm").
+- Color-coded priorityColumn cells (HIGH=red-ish, MEDIUM=orange, LOW=green).
+- Double-click on a row to open the edit dialog.
+- A “status bar” label (saveIndicatorLabel) that reflects save state (“All Changes Saved” / unsaved).
+- Persistence / ID handling
+- TicketService:
+- Loads all tickets on startup using Jackson + JavaTimeModule (so LocalDateTime is handled correctly).
+- Writes pretty-printed JSON (SerializationFeature.INDENT_OUTPUT) to tickets.json.
+- Generates numeric IDs by scanning existing IDs, finding max, and adding 1.
+- Validates tickets before saving (title/status/priority must be present).
+- Comments support
+- Comment model with id, ticketId, content, createdBy, createdAt.
+- Tickets can hold a List<Comment> and addComment() automatically sets ticketId.
+- EditTicketDialogController:
+- Has newCommentField, commentsListView.
+- handleAddComment() creates a comment with the current user (or “Unknown”) and adds it to the ticket.
+- Overall, this is already beyond a toy example — it’s a decent little desktop ticket system.
+- 🔧 Things you could improve/refine
+- Nothing is “wrong”, but here are sensible next refinements:
+- Tighten responsibilities in MainViewController
+- It currently:
+- Handles UI interactions (good).
+- Talks directly to TicketService and UserService.
+- Implements filter logic, dialog launching, save/load, and a bit of error handling.
+ -For a bigger app you’d eventually move:
+ -Filtering logic into a dedicated service or utility (easier to unit test).
+ -Some of the UI-independent bits (like constructing dialogs) into helper methods.
+ -For now it’s fine, but it’s worth keeping in mind.
+ -Error handling & user feedback
+
+You already have showAlert(...) patterns in place — good.
+
+In a few places you still e.printStackTrace() and log to stderr; you could:
+
+Always show a user-friendly alert like “Could not load tickets.json – see logs for details.”
+
+Optionally log with Logger consistently rather than printStackTrace().
+
+Unused imports / dependencies
+
+In MainViewController you still import ObjectMapper, SerializationFeature, JavaTimeModule, but you’ve moved JSON I/O to TicketService. Those imports can be culled.
+
+In module-info.java you require:
+
+requires org.controlsfx.controls;
+requires com.dlsc.formsfx;
+requires eu.hansolo.tilesfx;
+
+
+If you’re not actually using those libraries, you can remove them to keep things cleaner.
+
+File path for tickets.json
+
+Currently TicketService uses:
+
+private static final String FILE_PATH = "tickets.json";
+
+
+That’s fine for a simple local app, but you might later:
+
+Put it under a dedicated app directory (e.g. user.home + "/.ticket-tracker/tickets.json").
+
+Or allow configuring the path (e.g. from a settings dialog).
+
+UserService isn’t fully surfaced yet
+
+UserService has roles and a concept of “current user”, but the current UI doesn’t show a login screen or user switching.
+
+That’s not a problem — it just means you’ve got a nice hook for a “v2” feature.
+
+Testing
+
+There are no unit tests (yet).
+
+Easy wins:
+
+Tests for TicketService (save/load, ID generation, validation).
+
+Tests for Ticket comment handling logic.
+
+Tests for filtering logic (extracted into a pure helper method).
