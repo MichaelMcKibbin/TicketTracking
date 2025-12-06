@@ -23,7 +23,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * in a JSON file for storage.
  */
 public class TicketService {
-    private static final String FILE_PATH = "tickets.json";
+    private static final String FILE_PATH = "src/main/resources/tickets/tickets.json";
     private final ObjectMapper objectMapper;
     private List<Ticket> tickets; // Cache the tickets in memory
 
