@@ -1,4 +1,11 @@
 # Ticket Tracking System (JavaFX)
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-21-blue.svg" alt="Java Version">
+  <img src="https://img.shields.io/badge/JavaFX-21-blue.svg" alt="JavaFX Version">
+<img src="https://img.shields.io/badge/CSS-3-blue.svg" alt="CSS Version">
+  <img src="https://img.shields.io/badge/Build-Maven-informational.svg" alt="Maven Build">
+  <img src="https://img.shields.io/github/languages/top/MichaelMcKibbin/TicketTrackingApp" alt="Top Language">
+</p>
 
 A desktop **Trouble Ticket Tracking System** built with **Java 17+ and JavaFX, with JSON persistence.**  
 It lets you create, view, edit, filter, and delete support tickets, with basic status/priority handling and comments.
@@ -9,7 +16,7 @@ This project is ideal for learning JavaFX, MVC patterns, and desktop data manage
 
 ---
 
-## ✨ Features
+## Features
 
 - Create new tickets with:
     - Title
@@ -38,9 +45,9 @@ This project is ideal for learning JavaFX, MVC patterns, and desktop data manage
 
 ---
 
-## 🧱 Tech Stack
+## Tech Stack
 
-- **Language:** Java 17+ (or compatible)
+- **Language:** Java 21
 - **UI toolkit:** JavaFX (`javafx.controls`, `javafx.fxml`)
 - **JSON:** Jackson (`com.fasterxml.jackson.databind`, `com.fasterxml.jackson.datatype.jsr310`)
 - **Build / IDE:**
@@ -49,7 +56,7 @@ This project is ideal for learning JavaFX, MVC patterns, and desktop data manage
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 src/
@@ -75,3 +82,29 @@ src/
         ticket-dialog.fxml            # New Ticket dialog layout
         edit-ticket-dialog.fxml       # Edit Ticket dialog layout
         styles.css                    # JavaFX CSS styling
+
+```
+
+
+## Potential Adaptations / Variations
+
+- Invoice Management System
+- Bug Tracking System
+- Customer Relationship Management (CRM) System
+- Help Desk Ticketing System
+- Project Task Management System
+- Asset Management System
+- Inventory Tracking System
+- Order Management System
+- Appointment Scheduling System
+- Event Registration System
+- Personal Task Organizer / Diary
+- Student Assignment Tracker
+- Personal Knowledge Base / Note-Taking System
+- Vulnerability Tracking System
+- Evidence Management System
+- PenTesting / QA Tracking System
+- Bug Bounty / Security Issue Tracking System
+
+The potential adaptations are endless, as the core functionality of creating, viewing, editing, filtering, and persisting records can be applied to many domains.
+

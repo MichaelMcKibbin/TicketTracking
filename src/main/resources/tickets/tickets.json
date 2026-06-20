@@ -220,4 +220,14 @@
     "createdBy" : "support1",
     "createdAt" : "2025-12-05T20:00:39.526782"
   } ]
+}, {
+  "id" : "22",
+  "title" : "Screen not responding",
+  "description" : "Screen freezes",
+  "status" : "NEW",
+  "priority" : "MEDIUM",
+  "createdAt" : "2026-06-20T00:18:12.0111644",
+  "updatedAt" : null,
+  "assignedTo" : "support1",
+  "comments" : [ ]
 } ]
