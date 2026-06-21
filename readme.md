@@ -24,34 +24,52 @@ This project is ideal for learning JavaFX, MVC patterns, and desktop data manage
     - Status (e.g. NEW, IN_PROGRESS, ON_HOLD, RESOLVED, CLOSED)
     - Priority (LOW, MEDIUM, HIGH, CRITICAL)
     - Assigned To (e.g. name or 'support1', 'admin', etc.)
+  
 - View all tickets in a sortable table:
     - ID, Title, Status, Priority, Assigned To, Created At, Description
+  
 - Filter and search:
     - Filter by **Status** and **Priority**
     - Free-text search on ID, title, status, assigned to, and description
+
 - Edit existing tickets:
     - Double-click a ticket row to open the edit dialog
     - Update status, priority, description, assignment, etc.
+
 - Comment support:
     - Add comments to a ticket in the edit dialog
     - Each comment stores content, author, and timestamp
+
 - JSON persistence:
     - Tickets are stored in a local `tickets.json` file
     - Uses Jackson and `JavaTimeModule` to handle `LocalDateTime`
+
 - Sample data:
     - Includes `sample_tickets.json` with example tickets you can copy/use as seed data
+
 - Basic save indicator:
     - A status bar label shows when changes are saved or if there are unsaved changes
 
 ---
 
+### UI Features
+- Color-coded priority column (low=green → high=red)
+- Double-click a ticket to open the Edit dialog
+- Clean, responsive JavaFX UI
+- Separate dialogs for:
+  - **New Ticket**
+  - **Edit Ticket**
+
+---
+
 ## Tech Stack
 
-- **Language:** Java 21
+- **Language:** Java 21 (Java 17+ compatible)
 - **UI toolkit:** JavaFX (`javafx.controls`, `javafx.fxml`)
 - **JSON:** Jackson (`com.fasterxml.jackson.databind`, `com.fasterxml.jackson.datatype.jsr310`)
+- Architecture: MVC (Model-View-Controller)
 - **Build / IDE:**
-    - Designed to run directly from an IDE such as IntelliJ IDEA
+    - Runs directly from the IDE (e.g. IntelliJ IDEA)
     - Uses `module-info.java` for JavaFX module configuration
 
 ---
