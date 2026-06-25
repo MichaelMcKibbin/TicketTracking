@@ -9,7 +9,8 @@ module com.michaelmckibbin.tickettracking {
     requires java.logging;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.datatype.jsr310;
+    requires static org.junit.jupiter.api;
 
-    opens com.tickettracking to javafx.fxml;
+    opens com.tickettracking to javafx.fxml, org.junit.platform.commons, org.junit.jupiter.api, org.junit.jupiter.engine;
     exports com.tickettracking;
 }

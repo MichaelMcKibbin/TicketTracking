@@ -59,82 +59,85 @@ public class TicketService {
     }
 
     public void saveTicket(Ticket ticket) {
+        // Validation throws IllegalArgumentException directly — no logging needed
+        validateTicket(ticket);
+
+        // Set creation time for new ticket
+        if (ticket.getCreatedAt() == null) {
+            ticket.setCreatedAt(LocalDateTime.now());
+        }
+
+        // Generate new ID for new ticket
+        if (ticket.getId() == null || ticket.getId().isEmpty()) {
+            // Find the maximum numeric ID
+            int maxId = tickets.stream()
+                .map(Ticket::getId)
+                .filter(id -> id != null && !id.isEmpty())
+                .mapToInt(id -> {
+                    try {
+                        return Integer.parseInt(id);
+                    } catch (NumberFormatException e) {
+                        return 0;
+                    }
+                })
+                .max()
+                .orElse(0);
+            ticket.setId(String.valueOf(maxId + 1));
+        }
+
+        tickets.add(ticket);
         try {
-            validateTicket(ticket);
-
-            // Set creation time for new ticket
-            if (ticket.getCreatedAt() == null) {
-                ticket.setCreatedAt(LocalDateTime.now());
-            }
-
-            // Generate new ID for new ticket
-            if (ticket.getId() == null || ticket.getId().isEmpty()) {
-                // Find the maximum numeric ID
-                int maxId = tickets.stream()
-                    .map(Ticket::getId)
-                    .filter(id -> id != null && !id.isEmpty())
-                    .mapToInt(id -> {
-                        try {
-                            return Integer.parseInt(id);
-                        } catch (NumberFormatException e) {
-                            return 0;
-                        }
-                    })
-                    .max()
-                    .orElse(0);
-                ticket.setId(String.valueOf(maxId + 1));
-            }
-
-            tickets.add(ticket);
             saveAllTickets(tickets);
-        } catch (Exception e) {
+        } catch (IOException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                    "Error saving ticket", e);
+                    "Error saving ticket to file", e);
             throw new RuntimeException("Failed to save ticket", e);
         }
     }
 
     public void updateTicket(Ticket editedTicket) {
-        try {
-            validateTicket(editedTicket);
-            if (editedTicket.getId() == null) {
-                throw new IllegalArgumentException("Ticket ID cannot be null for update");
-            }
-
-            for (int i = 0; i < tickets.size(); i++) {
-                if (tickets.get(i).getId().equals(editedTicket.getId())) {
-                    editedTicket.setUpdatedAt(LocalDateTime.now());
-                    tickets.set(i, editedTicket);
-                    saveAllTickets(tickets);
-                    return;
-                }
-            }
-            throw new RuntimeException("Ticket not found with ID: " + editedTicket.getId());
-        } catch (Exception e) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                    "Error updating ticket", e);
-            throw new RuntimeException("Failed to update ticket", e);
+        // Validation throws IllegalArgumentException directly — no logging needed
+        validateTicket(editedTicket);
+        if (editedTicket.getId() == null) {
+            throw new IllegalArgumentException("Ticket ID cannot be null for update");
         }
+
+        for (int i = 0; i < tickets.size(); i++) {
+            if (tickets.get(i).getId().equals(editedTicket.getId())) {
+                editedTicket.setUpdatedAt(LocalDateTime.now());
+                tickets.set(i, editedTicket);
+                try {
+                    saveAllTickets(tickets);
+                } catch (IOException e) {
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE,
+                            "Error saving updated ticket to file", e);
+                    throw new RuntimeException("Failed to update ticket", e);
+                }
+                return;
+            }
+        }
+        throw new RuntimeException("Ticket not found with ID: " + editedTicket.getId());
     }
 
     public void deleteTicket(Ticket ticket) {
-        try {
-            if (ticket == null || ticket.getId() == null) {
-                throw new IllegalArgumentException("Ticket or ticket ID cannot be null");
-            }
+        // Validation throws IllegalArgumentException directly — no logging needed
+        if (ticket == null || ticket.getId() == null) {
+            throw new IllegalArgumentException("Ticket or ticket ID cannot be null");
+        }
 
-            boolean removed = tickets.removeIf(t ->
-                t.getId() != null && t.getId().equals(ticket.getId()));
+        boolean removed = tickets.removeIf(t ->
+            t.getId() != null && t.getId().equals(ticket.getId()));
 
-            if (removed) {
+        if (removed) {
+            try {
                 saveAllTickets(tickets);
-            } else {
-                throw new RuntimeException("Ticket not found with ID: " + ticket.getId());
+            } catch (IOException e) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE,
+                        "Error saving tickets after deletion to file", e);
+                throw new RuntimeException("Failed to delete ticket", e);
             }
-        } catch (Exception e) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                    "Error deleting ticket", e);
-            throw new RuntimeException("Failed to delete ticket", e);
+        } else {
+            throw new RuntimeException("Ticket not found with ID: " + ticket.getId());
         }
     }
 
